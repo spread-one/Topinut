@@ -212,6 +212,25 @@
           const categoryOutput = document.createElement('p');
           categoryOutput.textContent = `🔍 카테고리 분석: ${JSON.stringify(categoryResult.categories)}`;
           responseContainer.appendChild(categoryOutput);
+
+          // 4. 카테고리 결과로 DB 업데이트 요청
+          await fetch('/api/update-db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ categories: categoryResult.categories })
+          })
+          .then(response => response.json())
+          .then(result => {
+            if (result.message) {
+              const dbOutput = document.createElement('p');
+              dbOutput.textContent = `✅ DB 업데이트 결과: ${result.message}`;
+              responseContainer.appendChild(dbOutput);
+            } else {
+              const errorOutput = document.createElement('p');
+              errorOutput.textContent = '❌ DB 업데이트 중 오류가 발생했습니다.';
+              responseContainer.appendChild(errorOutput);
+            }
+          });
         } else {
           const errorOutput = document.createElement('p');
           errorOutput.textContent = '카테고리 분석 중 오류가 발생했습니다.';

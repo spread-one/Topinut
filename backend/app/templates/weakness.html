@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 약점 파악하기 - TOPINUT</title>
+  <style>
+    /* 기본 스타일 */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* 헤더 스타일 */
+    header {
+      background-color: #F85D3A; /* 헤더 색상 유지 */
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    header .logo h1 {
+      margin: 0;
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    header nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 20px;
+    }
+
+    header nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    header nav ul li a:hover {
+      color: #FFDAB9;
+    }
+
+    header nav ul li a.active {
+      border-bottom: 3px solid #FFDAB9;
+    }
+
+    /* 메인 컨텐츠 스타일 */
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #F85D3A;
+      margin-bottom: 20px;
+    }
+
+    p.description {
+      text-align: center;
+      color: #555;
+      font-size: 1.2em;
+      margin-bottom: 30px;
+    }
+
+    /* 테이블 스타일 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #F85D3A;
+      color: white;
+      font-size: 1.1em;
+    }
+
+    table tr:hover {
+      background-color: #FFDAB9;
+    }
+
+    table td {
+      font-size: 1em;
+      color: #333;
+    }
+
+    .rank {
+      font-weight: bold;
+      color: #D94E2F;
+    }
+
+    .empty-message {
+      text-align: center;
+      font-size: 1.2em;
+      color: #555;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 헤더 영역 -->
+  <header>
+    <div class="logo">
+      <h1>TOPINUT</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/profread">문제 첨삭</a></li>
+        <li><a href="/generate">문제 만들기</a></li>
+        <li><a href="/weakness" class="active">내 약점 파악하기</a></li>
+        <li><a href="/chatbot">토픽 챗봇</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- 메인 컨텐츠 영역 -->
+  <div class="container">
+    <h1>내 약점 파악하기</h1>
+    <p class="description">현재까지 기록된 오답 중 가장 많이 발생한 5가지의 유형을 보여줍니다.</p>
+
+    <table id="error-table">
+      <thead>
+        <tr>
+          <th>순위</th>
+          <th>오류 유형</th>
+          <th>발생 빈도</th>
+        </tr>
+      </thead>
+      <tbody id="error-table-body">
+        <!-- 데이터가 비어 있을 경우, 다음 메시지가 출력됩니다. -->
+        <tr>
+          <td colspan="3" class="empty-message">데이터를 불러오는 중...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // 서버에서 데이터 가져오기
+    async function fetchTop5Errors() {
+      try {
+        const response = await fetch('/api/get-top-errors');
+        const result = await response.json();
+
+        if (result.error) {
+          console.error('오류 발생:', result.error);
+          document.getElementById('error-table-body').innerHTML = `
+            <tr>
+              <td colspan="3" class="empty-message">데이터를 불러오는 중 오류가 발생했습니다.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        const errors = result.errors;
+        const tableBody = document.getElementById('error-table-body');
+
+        // 기존 데이터를 지우기
+        tableBody.innerHTML = '';
+
+        if (errors.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="3" class="empty-message">현재 데이터가 없습니다.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        errors.forEach((error, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="rank">${index + 1}</td>
+            <td>${error.category_name}</td>
+            <td>${error.frequency}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+      } catch (error) {
+        console.error('서버 오류:', error);
+        document.getElementById('error-table-body').innerHTML = `
+          <tr>
+            <td colspan="3" class="empty-message">서버와의 연결에 문제가 발생했습니다.</td>
+          </tr>
+        `;
+      }
+    }
+
+    // 페이지가 로드되면 실행
+    window.onload = fetchTop5Errors;
+  </script>
+</body>
+</html>

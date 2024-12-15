@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask, render_template, jsonify, request
 from config import Config
 from models import db, ErrorCategory
@@ -7,9 +8,13 @@ from AI_route.question_generation_route import qg_bp
 from AI_route.scroing_route import scoring_bp
 from AI_route.write_profreading_route import writepro_bp
 from AI_route.category_route import category_bp
-
+from AI_route.update_route import update_db_bp
+from AI_route.get_top_errors import error_bp
 # Flask 애플리케이션 인스턴스 생성
 app = Flask(__name__, template_folder='templates')
+
+# 현재 파일의 경로를 기준으로 상위 디렉터리 경로 추가
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Config 설정 불러오기
 app.config.from_object(Config)
@@ -20,6 +25,8 @@ app.register_blueprint(qg_bp)
 app.register_blueprint(scoring_bp)
 app.register_blueprint(writepro_bp)
 app.register_blueprint(category_bp)
+app.register_blueprint(update_db_bp)
+app.register_blueprint(error_bp)
 # SQLAlchemy 초기화
 db.init_app(app)
 
@@ -81,6 +88,10 @@ def prof():
 @app.route('/generate')
 def gen():
     return render_template('qgen.html')
+
+@app.route('/weakness')
+def weak():
+    return render_template('weakness.html')
 # API 예제
 @app.route('/api/example', methods=['GET'])
 def example_api():
