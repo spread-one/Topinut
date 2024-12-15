@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>토픽 챗봇</title>
+    <style>
+        /* 기본 스타일 */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fdfdfd; /* 배경색 추가 */
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 헤더 스타일 */
+        header {
+            background-color: #F85D3A; /* 헤더 색상 유지 */
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        header .logo h1 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        header nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        header nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        header nav ul li a:hover {
+            color: #FFDAB9;
+        }
+
+        /* 채팅 컨테이너 */
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .container h2 {
+            color: #F85D3A;
+            margin-bottom: 20px;
+        }
+
+        /* 입력 폼 */
+        .form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input:focus {
+            border-color: #F85D3A;
+            outline: none;
+        }
+
+        .button {
+            padding: 10px 20px;
+            background-color: #F85D3A;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .button:hover {
+            background-color: #e04d2a;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        /* GPT 응답 박스 */
+        .response-box {
+            display: none; /* 기본적으로 숨김 */
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: left;
+            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .response-box h3 {
+            margin: 0 0 10px 0;
+            color: #F85D3A;
+        }
+
+        /* 응답 박스를 보이게 하는 클래스 */
+        .response-box.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 영역 -->
+    <header>
+        <div class="logo">
+            <h1>TOPINUT</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/profread">문제 첨삭</a></li>
+                <li><a href="/generate">문제 만들기</a></li>
+                <li><a href="/weakness">내 약점 파악하기</a></li>
+                <li><a href="/chatbot">토픽 챗봇</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 채팅 컨테이너 -->
+    <div class="container">
+        <h2>토픽 챗봇과 채팅해보세요!</h2>
+
+        <!-- 입력 폼 -->
+        <form id="chat-form" class="form">
+            <input 
+                type="text" 
+                id="user-input" 
+                placeholder="질문을 입력하세요..." 
+                class="input" 
+                required
+            />
+            <button 
+                type="submit" 
+                id="submit-button" 
+                class="button"
+            >
+                전송
+            </button>
+        </form>
+
+        <!-- GPT 응답 박스 -->
+        <div id="response-box" class="response-box">
+            <h3>GPT 응답:</h3>
+            <p id="response-text"></p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const responseText = document.getElementById('response-text');
+        const responseBox = document.getElementById('response-box');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const userInputValue = userInput.value.trim();
+            if (!userInputValue) {
+                alert('질문을 입력하세요.');
+                return;
+            }
+
+            // POST 요청 보내기
+            try {
+                const response = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_input: userInputValue })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    responseText.textContent = `오류: ${data.error}`;
+                } else {
+                    responseText.textContent = data.response;
+                }
+
+                // 응답 박스 보이기
+                responseBox.classList.add('show');
+            } catch (error) {
+                responseText.textContent = '서버에 연결할 수 없습니다.';
+                responseBox.classList.add('show');
+            }
+
+            userInput.value = '';
+        });
+    </script>
+</body>
+</html>

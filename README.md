@@ -35,5 +35,6 @@ project/
 │   └── migrations/         # 마이그레이션 파일 (선택적)
 │
 ├── .gitignore              # Git 무시 파일
+├── .env     
 ├── README.md               # 프로젝트 설명 파일
 └── docker-compose.yml      # Docker 설정 (선택적)

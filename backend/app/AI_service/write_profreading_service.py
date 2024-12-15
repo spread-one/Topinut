@@ -4,7 +4,9 @@ import os
 
 load_dotenv()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(
+    api_key = os.getenv("OPENAI_API_KEY")
+)
 def write_profreading(problem, answer):
     """
     OpenAI GPT-4o-mini 모델을 사용하여 TOPIK 쓰기 문제를 첨삭하는 함수.
@@ -36,21 +38,21 @@ def write_profreading(problem, answer):
         user_input_combined = f"문제: {problem}\n답변: {answer}"
 
         # OpenAI API 호출
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model='gpt-4o-mini',
             messages=[
                 {'role': 'system', 'content': system_instructions},
                 {'role': 'user', 'content': user_input_combined}
             ],
             temperature=1.0,
-            max_tokens=1000,
+            max_tokens=3000,
             top_p=1.0,
             presence_penalty=0.0,
             frequency_penalty=0.0
         )
 
         # 응답 내용 반환
-        return response['choices'][0]['message']['content']
+        return response.choices[0].message.content
 
     except Exception as e:
         # 에러 처리

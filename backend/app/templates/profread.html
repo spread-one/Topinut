@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>문제 첨삭 - TOPINUT</title>
+  <style>
+    /* 기본 스타일 */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    /* 헤더 스타일 */
+    header {
+      background-color: #F85D3A;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    header .logo h1 {
+      margin: 0;
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    header nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 20px;
+    }
+
+    header nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    header nav ul li a:hover {
+      color: #FFDAB9;
+    }
+
+    /* 메인 컨텐츠 스타일 */
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #F85D3A;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background-color: #F85D3A;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #D94E2F;
+    }
+
+    .response-container {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #FFDAB9;
+      border-radius: 10px;
+    }
+
+    .response-container p {
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .score {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #D94E2F;
+    }
+  </style>
+</head>
+<body>
+  <!-- 헤더 영역 -->
+  <header>
+    <div class="logo">
+      <h1>TOPINUT</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/profread">문제 첨삭</a></li>
+        <li><a href="/generate">문제 만들기</a></li>
+        <li><a href="/weakness">내 약점 파악하기</a></li>
+        <li><a href="/chatbot">토픽 챗봇</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- 메인 컨텐츠 영역 -->
+  <div class="container">
+    <h1>문제 첨삭</h1>
+    
+    <label for="problem">TOPIK 문제</label>
+    <textarea id="problem" placeholder="문제를 입력하세요..."></textarea>
+    
+    <label for="answer">내 답변</label>
+    <textarea id="answer" placeholder="당신의 답변을 입력하세요..."></textarea>
+    
+    <button id="submit-button">첨삭 요청하기</button>
+
+    <div id="response-container" class="response-container" style="display: none;">
+      <h2>첨삭 결과</h2>
+      <p id="response"></p>
+      <div class="score" id="score" style="display: none;">점수: </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('submit-button').addEventListener('click', async function() {
+      const problem = document.getElementById('problem').value;
+      const answer = document.getElementById('answer').value;
+
+      if (!problem || !answer) {
+        alert('문제와 답변을 모두 입력해주세요.');
+        return;
+      }
+
+      const responseContainer = document.getElementById('response-container');
+      const responseText = document.getElementById('response');
+      const scoreText = document.getElementById('score');
+
+      try {
+        // 1. 첨삭 요청
+        const profreadResponse = await fetch('/api/profread', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ problem, answer })
+        });
+
+        const profreadResult = await profreadResponse.json();
+
+        if (profreadResult.error) {
+          responseText.textContent = `🚫 오류: ${profreadResult.error}`;
+        } else {
+          responseText.textContent = profreadResult.response;
+        }
+
+        // 2. 점수 요청
+        const scoringResponse = await fetch('/api/scoring', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ problem, answer })
+        });
+
+        const scoringResult = await scoringResponse.json();
+
+        if (scoringResult.response) {
+          scoreText.textContent = `점수: ${scoringResult.response}`;
+          scoreText.style.display = 'block';
+        } else {
+          scoreText.textContent = '점수를 불러오는 중 오류가 발생했습니다.';
+        }
+
+        // 3. 카테고리 요청
+        const categoryResponse = await fetch('/api/category', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_input: profreadResult.response })
+        });
+
+        const categoryResult = await categoryResponse.json();
+
+        if (categoryResult.categories) {
+          const categoryOutput = document.createElement('p');
+          categoryOutput.textContent = `🔍 카테고리 분석: ${JSON.stringify(categoryResult.categories)}`;
+          responseContainer.appendChild(categoryOutput);
+        } else {
+          const errorOutput = document.createElement('p');
+          errorOutput.textContent = '카테고리 분석 중 오류가 발생했습니다.';
+          responseContainer.appendChild(errorOutput);
+        }
+
+        responseContainer.style.display = 'block';
+      } catch (error) {
+        alert('오류가 발생했습니다. 다시 시도해 주세요.');
+      }
+    });
+  </script>
+</body>
+</html>

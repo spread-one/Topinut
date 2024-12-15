@@ -1,29 +1,32 @@
-from flask import Flask, request, jsonify
-from app.AI_service.scoring_service import get_scoring
+from flask import Blueprint, request, jsonify
+from AI_service.scoring_service import get_scoring
 
-app = Flask(__name__)
+# 블루프린트 생성
+scoring_bp = Blueprint('scoring', __name__)
 
-@app.route('/api/qgen', methods=['POST'])
-def chatbot():
+@scoring_bp.route('/api/scoring', methods=['POST'])
+def scoring():
     """
-    사용자의 입력을 받아 GPT-4의 응답을 반환하는 API 엔드포인트.
+    사용자의 문제와 답변을 받아 GPT-4의 점수를 반환하는 API 엔드포인트.
     
     Request:
-        - JSON 데이터: {"user_input": "<사용자 입력>"}
+        - JSON 데이터: {"problem": "<문제>", "answer": "<답변>"}
     
     Response:
-        - JSON 데이터: {"response": "<GPT의 응답>"}
+        - JSON 데이터: {"response": "<GPT의 평가 결과>"}
     """
     try:
         # 요청에서 JSON 데이터 가져오기
         data = request.get_json()
-        user_input = data.get('user_input')
+        problem = data.get('problem')  # 문제 입력
+        answer = data.get('answer')    # 답변 입력
 
-        if not user_input:
-            return jsonify({"error": "user_input이 필요합니다."}), 400
+        # 입력값 검증
+        if not problem or not answer:
+            return jsonify({"error": "problem과 answer가 필요합니다."}), 400
 
-        # 서비스 로직 호출 (chatbot_service.py)
-        response = get_scoring(user_input)
+        # 서비스 로직 호출
+        response = get_scoring(problem, answer)
         return jsonify({"response": response})
     
     except Exception as e:

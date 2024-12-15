@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOPINUT</title>
+  <style>
+    /* 기본 스타일 */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* 헤더 스타일 */
+    header {
+      background-color: #F85D3A; /* 헤더 색상 유지 */
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    header .logo h1 {
+      margin: 0;
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    header nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 20px;
+    }
+
+    header nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    header nav ul li a:hover {
+      color: #FFDAB9;
+    }
+
+    /* Hero Section 스타일 */
+    .hero-section {
+      background-color: #FFDAB9; /* 헤더와 조화로운 부드러운 색상 */
+      color: #F85D3A; /* 헤더 색상과 일치하는 텍스트 색상 */
+      text-align: center;
+      padding: 300px 20px; /* 높이를 대폭 늘림 */
+      position: relative;
+    }
+
+    .hero-section img {
+      max-width: 120px;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .hero-section h2 {
+      margin: 0;
+      font-size: 3em; /* 글씨 크기 증가 */
+      font-weight: bold;
+    }
+
+    .hero-section p {
+      font-size: 1.4em; /* 문장 크기 증가 */
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- 헤더 영역 -->
+  <header>
+    <div class="logo">
+      <h1>TOPINUT</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/profread">문제 첨삭</a></li>
+        <li><a href="/generate">문제 만들기</a></li>
+        <li><a href="/weakness">내 약점 파악하기</a></li>
+        <li><a href="/chatbot">토픽 챗봇</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <p>한국어 능력시험이 어려운 외국인을 위한 원스톱 학습 솔루션</p>
+    <h2>ToPiNut</h2>
+  </div>
+
+</body>
+</html>
