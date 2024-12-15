@@ -1,6 +1,6 @@
 import os
 from app import create_app
-from app.models import db
+from models import db
 
 # 데이터베이스 초기화 코드 추가
 def initialize_database():

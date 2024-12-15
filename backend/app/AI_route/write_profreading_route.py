@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from AI_service.write_profreading_service import write_profreading
+from app.AI_service.write_profreading_service import write_profreading
 
 app = Flask(__name__)
 
